@@ -16,6 +16,7 @@ class _ApplicationState extends State<Application> {
   int scorePlayerX = 0;
   int scorePlayerO = 0;
   int filBox = 0;
+  String result = "";
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -102,14 +103,16 @@ class _ApplicationState extends State<Application> {
       if (has_result) {
         return;
       }
-      if (isTurnX) {
+      if (isTurnX && TurnXANDTurnO[index] == "") {
         TurnXANDTurnO[index] = "x";
         isTurnX = false;
         filBox = filBox + 1;
       } else {
-        TurnXANDTurnO[index] = "o";
-        isTurnX = true;
-        filBox = filBox + 1;
+        if (TurnXANDTurnO[index] == "") {
+          TurnXANDTurnO[index] = "o";
+          isTurnX = true;
+          filBox = filBox + 1;
+        }
       }
       checkResult();
     });
@@ -171,6 +174,10 @@ class _ApplicationState extends State<Application> {
         TurnXANDTurnO[2] != "") {
       getScore(TurnXANDTurnO[2]);
     }
+
+    if (filBox == 9) {
+      getScore("");
+    }
   }
 
   void getScore(String player) {
@@ -178,11 +185,14 @@ class _ApplicationState extends State<Application> {
       has_result = true;
       if (player == "x") {
         scorePlayerX = scorePlayerX + 1;
-      } else if (player == "0") {
+        result = "${player.toUpperCase()} is winner!";
+      } else if (player == "o") {
         scorePlayerO = scorePlayerO + 1;
+        result = "${player.toUpperCase()} is winner!";
       } else {
         scorePlayerO = scorePlayerO + 1;
         scorePlayerX = scorePlayerX + 1;
+        result = "Mosavi";
       }
     });
   }
@@ -230,7 +240,7 @@ class _ApplicationState extends State<Application> {
           height: 10,
         ),
         Text(
-          "X is winner !",
+          "$result",
           style: TextStyle(
               color: Colors.white, fontSize: 30, fontWeight: FontWeight.w900),
         ),
@@ -240,7 +250,9 @@ class _ApplicationState extends State<Application> {
         TextButton(
           style: TextButton.styleFrom(
               backgroundColor: Colors.red, maximumSize: Size(150, 100)),
-          onPressed: () {},
+          onPressed: () {
+            restartGame();
+          },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -259,7 +271,13 @@ class _ApplicationState extends State<Application> {
           height: 10,
         ),
         OutlinedButton(
-          onPressed: () {},
+          onPressed: () {
+            setState(() {
+              restartGame();
+              scorePlayerO = 0;
+              scorePlayerX = 0;
+            });
+          },
           child: Text(
             "Restart The Game",
             style: TextStyle(
@@ -268,6 +286,16 @@ class _ApplicationState extends State<Application> {
         )
       ],
     );
+  }
+
+  void restartGame() {
+    setState(() {
+      for (var i = 0; i < TurnXANDTurnO.length; i++) {
+        TurnXANDTurnO[i] = "";
+        has_result = false;
+        filBox = 0;
+      }
+    });
   }
 
   Widget _getCard(String player, String score) {
